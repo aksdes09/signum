@@ -1,4 +1,0 @@
-classTweaker v1 official
-
-# Needed to switch fog off while sign text is drawn into the atlas.
-accessible field net/minecraft/client/renderer/GameRenderer fogRenderer Lnet/minecraft/client/renderer/fog/FogRenderer;
