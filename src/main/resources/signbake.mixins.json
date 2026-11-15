@@ -1,0 +1,13 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "com.aksdes.signbake.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"client": [
+		"AbstractSignRendererMixin",
+		"SignTextMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

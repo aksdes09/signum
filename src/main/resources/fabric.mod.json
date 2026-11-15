@@ -1,0 +1,22 @@
+{
+	"schemaVersion": 1,
+	"id": "signbake",
+	"version": "${version}",
+	"name": "SignBake",
+	"description": "Bakes the text of every sign into a small texture and draws it as one quad instead of two triangles per character. Uses the game's own font renderer, so resource pack fonts keep working.",
+	"authors": ["aksdes"],
+	"license": "LGPL-3.0-or-later",
+	"environment": "client",
+	"mixins": [
+		{
+			"config": "signbake.mixins.json",
+			"environment": "client"
+		}
+	],
+	"accessWidener": "signbake.classtweaker",
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~26.3",
+		"java": ">=25"
+	}
+}
