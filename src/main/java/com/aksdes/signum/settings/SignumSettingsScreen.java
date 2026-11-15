@@ -32,12 +32,14 @@ public final class SignumSettingsScreen extends OptionsSubScreen {
 	}
 
 	private static OptionInstance<Boolean> toggle(final String key, final Component tooltip, final boolean value, final Consumer<Boolean> onChange) {
-		return new OptionInstance<>(
+		// Последний параметр конструктора в 26.3 — не java.util.function.Consumer, поэтому только лямбда
+		// (так же делают Mod Menu и Iris); тип указан явно, чтобы не зависеть от вывода diamond.
+		return new OptionInstance<Boolean>(
 				key,
 				OptionInstance.cachedConstantTooltip(tooltip),
 				(caption, on) -> CommonComponents.optionNameValue(caption, Component.translatable(on ? "options.on" : "options.off")),
 				OptionInstance.BOOLEAN_VALUES,
 				value,
-				onChange);
+				newValue -> onChange.accept(newValue));
 	}
 }
