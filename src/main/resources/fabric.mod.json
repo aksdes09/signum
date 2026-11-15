@@ -1,0 +1,29 @@
+{
+	"schemaVersion": 1,
+	"id": "signum",
+	"version": "${version}",
+	"name": "Signum",
+	"description": "Bakes each sign side's text into a texture-atlas cell once and then draws it as a single quad instead of re-laying-out the text and emitting two triangles per glyph every frame.",
+	"authors": [
+		"aksdes"
+	],
+	"license": "LGPL-3.0-or-later",
+	"icon": "assets/signum/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"com.aksdes.signum.Signum"
+		]
+	},
+	"mixins": [
+		"signum.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~26.3",
+		"java": ">=25"
+	},
+	"breaks": {
+		"minecraft": ">=26.4-"
+	}
+}

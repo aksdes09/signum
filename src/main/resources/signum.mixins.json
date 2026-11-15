@@ -1,0 +1,19 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "com.aksdes.signum.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"client": [
+		"AbstractSignRendererMixin",
+		"DebugScreenEntriesMixin",
+		"GameRendererAccessor",
+		"MinecraftMixin",
+		"SignTextMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}
