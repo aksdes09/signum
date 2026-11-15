@@ -6,6 +6,8 @@ import net.minecraft.resources.Identifier;
 public interface ConfigBuilder {
 	ModOptionsBuilder registerOwnModOptions();
 
+	ColorThemeBuilder createColorTheme();
+
 	OptionPageBuilder createOptionPage();
 
 	OptionGroupBuilder createOptionGroup();

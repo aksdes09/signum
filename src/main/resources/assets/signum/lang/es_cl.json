@@ -1,5 +1,4 @@
 {
-  "signum.options.title": "Signum",
   "signum.options.page": "Ajustes",
   "signum.option.optimize": "Optimización del texto de carteles",
   "signum.option.optimize.tooltip": "Dibuja una sola vez el texto de cada cara del cartel en un atlas de texturas y después lo muestra como un único rectángulo. Desactívalo para volver al renderizado vanilla del texto. Se aplica al instante.",

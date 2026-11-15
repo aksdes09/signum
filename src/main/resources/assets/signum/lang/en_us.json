@@ -1,5 +1,4 @@
 {
-  "signum.options.title": "Signum",
   "signum.options.page": "Settings",
   "signum.option.optimize": "Sign Text Optimization",
   "signum.option.optimize.tooltip": "Draws the text of each sign side into a texture atlas once and then shows it as a single quad. Turn off to go back to vanilla sign text rendering. Takes effect immediately.",

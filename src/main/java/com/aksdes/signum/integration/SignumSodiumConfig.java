@@ -5,6 +5,7 @@ import com.aksdes.signum.settings.SettingsKeys;
 import net.caffeinemc.mods.sodium.api.config.ConfigEntryPoint;
 import net.caffeinemc.mods.sodium.api.config.structure.BooleanOptionBuilder;
 import net.caffeinemc.mods.sodium.api.config.structure.ConfigBuilder;
+import net.caffeinemc.mods.sodium.api.config.structure.ModOptionsBuilder;
 import net.caffeinemc.mods.sodium.api.config.structure.OptionGroupBuilder;
 import net.caffeinemc.mods.sodium.api.config.structure.OptionPageBuilder;
 import net.minecraft.network.chat.Component;
@@ -15,6 +16,11 @@ import net.minecraft.resources.Identifier;
  * Загружается только самим Sodium через точку входа {@code sodium:config_api_user}.
  */
 public final class SignumSodiumConfig implements ConfigEntryPoint {
+
+	/** Иконка 16×16 пиксель-арт (увеличена до 64×64): бинарная прозрачность, читается в мелком размере. */
+	private static final Identifier ICON = Identifier.fromNamespaceAndPath(Signum.MOD_ID, "textures/gui/sodium_icon.png");
+	/** Тёплый «деревянный» цвет под иконку; без него Sodium выбирает цвет мода случайно. */
+	private static final int THEME_RGB = 0xD9A15A;
 
 	@Override
 	public void registerConfigLate(final ConfigBuilder builder) {
@@ -41,9 +47,17 @@ public final class SignumSodiumConfig implements ConfigEntryPoint {
 					.setName(Component.translatable(SettingsKeys.PAGE))
 					.addOptionGroup(group);
 		} catch (Throwable t) {
-			Signum.LOGGER.warn("Could not build the Signum page for Sodium's video settings (incompatible Sodium config API); use Mod Menu or config/signum.properties", t);
+			Signum.LOGGER.warn("Could not build the Signum page for Sodium's video settings (incompatible Sodium config API); use config/signum.properties", t);
 			return;
 		}
-		builder.registerOwnModOptions().addPage(page);
+		final ModOptionsBuilder options = builder.registerOwnModOptions().addPage(page);
+		try {
+			// Оформление — после страницы: если в какой-то версии Sodium этих методов нет,
+			// страница с настройками всё равно останется (просто без иконки/цвета).
+			options.setNonTintedIcon(ICON);
+			options.setColorTheme(builder.createColorTheme().setBaseThemeRGB(THEME_RGB));
+		} catch (Throwable t) {
+			Signum.LOGGER.debug("Sodium does not support mod icons/themes here", t);
+		}
 	}
 }

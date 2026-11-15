@@ -14,12 +14,12 @@ repositories {
 
 sourceSets {
 	main {
-		// Заглушки API Mod Menu и Sodium — только для компиляции, в jar не попадают (см. ниже).
+		// Заглушки API Sodium — только для компиляции, в jar не попадают (см. ниже).
 		java.srcDir 'src/stubs/java'
 	}
 }
 
-def optionalApiStubs = ['com/terraformersmc/**', 'net/caffeinemc/**']
+def optionalApiStubs = ['net/caffeinemc/**']
 
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"

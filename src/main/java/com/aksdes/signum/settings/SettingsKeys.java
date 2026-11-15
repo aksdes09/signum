@@ -6,7 +6,6 @@ import net.minecraft.network.chat.Component;
 /** Ключи перевода (assets/signum/lang). */
 public final class SettingsKeys {
 
-	public static final String TITLE = "signum.options.title";
 	public static final String PAGE = "signum.options.page";
 	public static final String OPTIMIZE = "signum.option.optimize";
 	public static final String OPTIMIZE_TOOLTIP = "signum.option.optimize.tooltip";

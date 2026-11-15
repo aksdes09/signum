@@ -14,9 +14,6 @@
 		"client": [
 			"com.aksdes.signum.Signum"
 		],
-		"modmenu": [
-			"com.aksdes.signum.integration.SignumModMenu"
-		],
 		"sodium:config_api_user": [
 			"com.aksdes.signum.integration.SignumSodiumConfig"
 		]
@@ -33,7 +30,6 @@
 		"minecraft": ">=26.4-"
 	},
 	"suggests": {
-		"modmenu": "*",
 		"sodium": "*"
 	}
 }
