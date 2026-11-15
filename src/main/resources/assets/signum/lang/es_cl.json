@@ -1,0 +1,11 @@
+{
+  "signum.options.title": "Signum",
+  "signum.options.page": "Ajustes",
+  "signum.option.optimize": "Optimización del texto de carteles",
+  "signum.option.optimize.tooltip": "Dibuja una sola vez el texto de cada cara del cartel en un atlas de texturas y después lo muestra como un único rectángulo. Desactívalo para volver al renderizado vanilla del texto. Se aplica al instante.",
+  "signum.option.unavailable": "Signum no está disponible: %s",
+  "signum.option.debug_info": "Información en la pantalla F3",
+  "signum.option.debug_info.tooltip": "Muestra la línea de Signum en la pantalla de depuración F3: celdas y páginas del atlas, rectángulos dibujados y celdas generadas por segundo.",
+  "modmenu.summaryTranslation.signum": "Texto de carteles desde un atlas de texturas: un rectángulo por cara.",
+  "modmenu.descriptionTranslation.signum": "El juego vanilla vuelve a componer el texto de cada cartel en cada fotograma y dibuja al menos dos triángulos por carácter. Signum dibuja una sola vez el texto de cada cara del cartel en una celda de un atlas de texturas y después lo muestra como un único rectángulo. Compatible con los shaders de Iris."
+}

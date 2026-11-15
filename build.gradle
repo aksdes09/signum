@@ -12,6 +12,15 @@ group = project.maven_group
 repositories {
 }
 
+sourceSets {
+	main {
+		// Заглушки API Mod Menu и Sodium — только для компиляции, в jar не попадают (см. ниже).
+		java.srcDir 'src/stubs/java'
+	}
+}
+
+def optionalApiStubs = ['com/terraformersmc/**', 'net/caffeinemc/**']
+
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
@@ -38,7 +47,12 @@ java {
 	targetCompatibility = JavaVersion.VERSION_25
 }
 
+tasks.named('sourcesJar') {
+	exclude optionalApiStubs
+}
+
 jar {
+	exclude optionalApiStubs
 	def projectName = project.archives_base_name
 	inputs.property "projectName", projectName
 	from("LICENSE") {

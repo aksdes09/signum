@@ -1,0 +1,11 @@
+{
+  "signum.options.title": "Signum",
+  "signum.options.page": "Settings",
+  "signum.option.optimize": "Sign Text Optimization",
+  "signum.option.optimize.tooltip": "Draws the text of each sign side into a texture atlas once and then shows it as a single quad. Turn off to go back to vanilla sign text rendering. Takes effect immediately.",
+  "signum.option.unavailable": "Signum is unavailable: %s",
+  "signum.option.debug_info": "F3 Debug Info",
+  "signum.option.debug_info.tooltip": "Shows the Signum line on the F3 debug screen: atlas cells and pages, quads drawn and cells baked per second.",
+  "modmenu.summaryTranslation.signum": "Draws sign text from a texture atlas: one quad per sign side.",
+  "modmenu.descriptionTranslation.signum": "Vanilla lays out the text of every sign again each frame and draws at least two triangles per character. Signum draws the text of a sign side into a texture atlas cell once and then shows it as a single quad. Works with Iris shader packs."
+}

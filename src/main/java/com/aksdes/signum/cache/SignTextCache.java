@@ -88,8 +88,8 @@ public final class SignTextCache {
 	 */
 	public boolean submit(final VanillaSignTextSubmitter renderer, final Font font, final SignRenderState state,
 			final PoseStack poseStack, final SubmitNodeCollector collector, final SignText text) {
-		if (this.baking) {
-			return false; // это наш собственный вызов ванили при запекании
+		if (this.baking || !Signum.config.enabled) {
+			return false; // наш собственный вызов ванили при запекании или оптимизация выключена в настройках
 		}
 		final long now = System.nanoTime();
 		if (Compat.useVanilla(now)) {
@@ -247,7 +247,7 @@ public final class SignTextCache {
 				region.free();
 			}
 			Signum.LOGGER.error("Failed to bake sign text; Signum disables itself for this session", e);
-			Signum.cache = null;
+			Signum.markBroken("bake failure: " + e);
 			this.clearAll("bake failure");
 			return null;
 		} finally {

@@ -14,7 +14,11 @@ public final class SignumConfig {
 	/** 2: появилась поддержка шейдеров Iris, disableWithShaderPack по умолчанию стал false. */
 	private static final int CONFIG_VERSION = 2;
 
+	/** Оптимизация текста табличек (переключается и в игре). */
 	public boolean enabled = true;
+	/** Строка Signum на экране F3. */
+	public boolean showDebugInfo = true;
+	private Path file;
 	/** Сколько пикселей атласа на один пиксель шрифта. 2 — без «сплющивания» строк нечётной ширины. */
 	public int textureScale = 2;
 	/** Сторона одной страницы атласа (степень двойки). */
@@ -42,7 +46,9 @@ public final class SignumConfig {
 				Signum.LOGGER.warn("Could not read {}, using defaults", file, e);
 			}
 		}
+		c.file = file;
 		c.enabled = bool(p, "enabled", c.enabled);
+		c.showDebugInfo = bool(p, "showDebugInfo", c.showDebugInfo);
 		c.textureScale = clamp(integer(p, "textureScale", c.textureScale), 1, 4);
 		c.atlasSize = powerOfTwo(clamp(integer(p, "atlasSize", c.atlasSize), 512, 8192));
 		c.maxAtlasPages = clamp(integer(p, "maxAtlasPages", c.maxAtlasPages), 1, 64);
@@ -55,18 +61,25 @@ public final class SignumConfig {
 			c.disableWithShaderPack = bool(p, "disableWithShaderPack", c.disableWithShaderPack);
 		}
 		c.disableWithIris = bool(p, "disableWithIris", c.disableWithIris);
-		c.save(file);
+		c.save();
 		return c;
 	}
 
-	private void save(final Path file) {
+	public void save() {
+		if (this.file == null) {
+			return;
+		}
+		final Path file = this.file;
 		final String text = """
 				# Signum - sign text atlas
 				# Restart the game after editing.
 				configVersion=%d
 
-				# Master switch.
+				# Sign text optimization (can also be toggled in-game: Mod Menu or Sodium video settings).
 				enabled=%s
+
+				# Show the Signum line on the F3 debug screen.
+				showDebugInfo=%s
 
 				# Atlas pixels per font pixel (1..4). Even values (2, 4) keep lines with odd width pixel-exact.
 				# 1 = least VRAM, 2 = recommended, 4 = sharpest with smooth/TTF fonts.
@@ -94,7 +107,7 @@ public final class SignumConfig {
 
 				# Turn Signum off completely whenever Iris is installed.
 				disableWithIris=%s
-				""".formatted(CONFIG_VERSION, this.enabled, this.textureScale, this.atlasSize, this.maxAtlasPages, this.idleSeconds,
+				""".formatted(CONFIG_VERSION, this.enabled, this.showDebugInfo, this.textureScale, this.atlasSize, this.maxAtlasPages, this.idleSeconds,
 				this.bakesPerSecond, this.bakeBurst, this.disableWithShaderPack, this.disableWithIris);
 		try {
 			Files.createDirectories(file.getParent());

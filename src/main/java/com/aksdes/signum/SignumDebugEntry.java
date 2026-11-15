@@ -15,8 +15,18 @@ public final class SignumDebugEntry implements DebugScreenEntry {
 
 	@Override
 	public void display(final DebugScreenDisplayer displayer, final Level level, final LevelChunk clientChunk, final LevelChunk serverChunk) {
+		if (!Signum.config.showDebugInfo) {
+			return;
+		}
 		final SignTextCache cache = Signum.cache;
-		final String line = cache != null ? cache.debugLine() : "Signum: off";
+		final String line;
+		if (cache == null) {
+			line = "Signum: unavailable" + (Signum.unavailableReason != null ? " (" + Signum.unavailableReason + ")" : "");
+		} else if (!Signum.config.enabled) {
+			line = "Signum: optimization off";
+		} else {
+			line = cache.debugLine();
+		}
 		displayer.addToGroup(ID, List.of(line));
 	}
 
