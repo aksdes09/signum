@@ -92,7 +92,7 @@ public final class SignTextCache {
 			return false; // это наш собственный вызов ванили при запекании
 		}
 		final long now = System.nanoTime();
-		if (Compat.shaderPackActive(now)) {
+		if (Compat.useVanilla(now)) {
 			return false;
 		}
 		if (now - this.nextHousekeeping >= 0) {
@@ -227,16 +227,36 @@ public final class SignTextCache {
 		final int cellWidth = (textWidth + 2 * PADDING) * this.scale;
 		final int cellHeight = (textHeight + 2 * PADDING) * this.scale;
 
-		final Placement placement = this.allocate(cellWidth, cellHeight, now);
-		if (placement == null) {
-			this.atlasFullUntil = now + FULL_ATLAS_BACKOFF_NS;
-			Signum.LOGGER.debug("Sign atlas is full ({} cells); drawing vanilla for a while", this.cells.size());
+		ShelfPacker.Region region = null;
+		// При включённом шейдерпаке Iris на это время перестаёт подменять шейдеры, формат вершин и глубину.
+		Compat.enterVanillaRendering();
+		try {
+			final Placement placement = this.allocate(cellWidth, cellHeight, now);
+			if (placement == null) {
+				this.atlasFullUntil = now + FULL_ATLAS_BACKOFF_NS;
+				Signum.LOGGER.debug("Sign atlas is full ({} cells); drawing vanilla for a while", this.cells.size());
+				return null;
+			}
+			region = placement.region;
+			placement.page.clearRegion(region);
+			this.renderIntoCell(renderer, state, text, placement.page, region, outline);
+			this.bakesThisSecond++;
+			return new Cell(key, placement.page, region, this.scale, now);
+		} catch (RuntimeException e) {
+			if (region != null) {
+				region.free();
+			}
+			Signum.LOGGER.error("Failed to bake sign text; Signum disables itself for this session", e);
+			Signum.cache = null;
+			this.clearAll("bake failure");
 			return null;
+		} finally {
+			Compat.exitVanillaRendering();
 		}
-		final AtlasPage page = placement.page;
-		final ShelfPacker.Region region = placement.region;
-		page.clearRegion(region);
+	}
 
+	private void renderIntoCell(final VanillaSignTextSubmitter renderer, final SignRenderState state, final SignText text,
+			final AtlasPage page, final ShelfPacker.Region region, final boolean outline) {
 		if (this.projection == null) {
 			final Projection ortho = new Projection();
 			ortho.setupOrtho(-1000F, 1000F, this.atlasSize, this.atlasSize, true);
@@ -272,12 +292,6 @@ public final class SignTextCache {
 				RenderSystem.bindDefaultUniforms(pass);
 				FeatureRenderDispatcher.renderAllFeatures(pass, frame);
 			}
-		} catch (RuntimeException e) {
-			region.free();
-			Signum.LOGGER.error("Failed to bake sign text; Signum disables itself for this session", e);
-			Signum.cache = null;
-			this.clearAll("bake failure");
-			return null;
 		} finally {
 			this.baking = false;
 			state.drawOutline = savedOutline;
@@ -286,9 +300,6 @@ public final class SignTextCache {
 			modelView.popMatrix();
 			RenderSystem.restoreProjectionMatrix();
 		}
-
-		this.bakesThisSecond++;
-		return new Cell(key, page, region, this.scale, now);
 	}
 
 	private record Placement(AtlasPage page, ShelfPacker.Region region) {
@@ -386,6 +397,6 @@ public final class SignTextCache {
 		}
 		return "Signum: " + this.cells.size() + " cells, " + pageCount + "/" + this.maxPages + " pages "
 				+ this.atlasSize + "px x" + this.scale + ", " + this.quadsLastSecond + " quads/s, "
-				+ this.bakesLastSecond + " bakes/s";
+				+ this.bakesLastSecond + " bakes/s" + Compat.shaderStatus();
 	}
 }

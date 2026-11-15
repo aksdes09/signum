@@ -11,6 +11,9 @@ import java.util.Properties;
 /** Простой конфиг в config/signum.properties — без сторонних библиотек. */
 public final class SignumConfig {
 
+	/** 2: появилась поддержка шейдеров Iris, disableWithShaderPack по умолчанию стал false. */
+	private static final int CONFIG_VERSION = 2;
+
 	public boolean enabled = true;
 	/** Сколько пикселей атласа на один пиксель шрифта. 2 — без «сплющивания» строк нечётной ширины. */
 	public int textureScale = 2;
@@ -24,8 +27,8 @@ public final class SignumConfig {
 	public int bakesPerSecond = 480;
 	/** Сколько ячеек можно запечь за один кадр при всплеске. */
 	public int bakeBurst = 24;
-	/** Не трогать таблички, пока в Iris включён шейдерпак. */
-	public boolean disableWithShaderPack = true;
+	/** Не трогать таблички, пока в Iris включён шейдерпак (по умолчанию Signum работает и с шейдерами). */
+	public boolean disableWithShaderPack = false;
 	/** Полностью выключаться при наличии Iris (на случай проблем даже без шейдеров). */
 	public boolean disableWithIris = false;
 
@@ -46,7 +49,11 @@ public final class SignumConfig {
 		c.idleSeconds = clamp(integer(p, "idleSeconds", c.idleSeconds), 1, 3600);
 		c.bakesPerSecond = clamp(integer(p, "bakesPerSecond", c.bakesPerSecond), 1, 100_000);
 		c.bakeBurst = clamp(integer(p, "bakeBurst", c.bakeBurst), 1, 10_000);
-		c.disableWithShaderPack = bool(p, "disableWithShaderPack", c.disableWithShaderPack);
+		final int fileVersion = integer(p, "configVersion", 1);
+		if (fileVersion >= 2) {
+			// В версии 1 этот ключ был true по умолчанию только потому, что шейдеры не поддерживались.
+			c.disableWithShaderPack = bool(p, "disableWithShaderPack", c.disableWithShaderPack);
+		}
 		c.disableWithIris = bool(p, "disableWithIris", c.disableWithIris);
 		c.save(file);
 		return c;
@@ -56,6 +63,7 @@ public final class SignumConfig {
 		final String text = """
 				# Signum - sign text atlas
 				# Restart the game after editing.
+				configVersion=%d
 
 				# Master switch.
 				enabled=%s
@@ -79,12 +87,14 @@ public final class SignumConfig {
 				bakesPerSecond=%d
 				bakeBurst=%d
 
-				# Fall back to vanilla sign text while an Iris shader pack is active.
+				# Iris shader packs are supported: atlas cells are baked with vanilla shaders and the finished
+				# quads go through the shader pack like normal sign text. Set to true to draw sign text the
+				# vanilla way while a shader pack is active.
 				disableWithShaderPack=%s
 
 				# Turn Signum off completely whenever Iris is installed.
 				disableWithIris=%s
-				""".formatted(this.enabled, this.textureScale, this.atlasSize, this.maxAtlasPages, this.idleSeconds,
+				""".formatted(CONFIG_VERSION, this.enabled, this.textureScale, this.atlasSize, this.maxAtlasPages, this.idleSeconds,
 				this.bakesPerSecond, this.bakeBurst, this.disableWithShaderPack, this.disableWithIris);
 		try {
 			Files.createDirectories(file.getParent());

@@ -7,19 +7,17 @@ import com.google.gson.JsonParser;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.Reader;
-import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-/** Совместимость с другими модами. Iris вызывается только через рефлексию — зависимости нет. */
+/** Совместимость с другими модами. Iris вызывается только через рефлексию (см. {@link IrisBridge}). */
 public final class Compat {
 
-	private static final long IRIS_POLL_NS = 500_000_000L;
+	private static final long IRIS_POLL_NS = 250_000_000L;
 
-	private static Object irisApi;
-	private static Method isShaderPackInUse;
-	private static boolean irisResolved;
+	private static final boolean IRIS = FabricLoader.getInstance().isModLoaded("iris");
+
 	private static boolean shaderPackActive;
 	private static long nextIrisPoll;
 
@@ -29,7 +27,7 @@ public final class Compat {
 	/** Причина, по которой Signum нельзя включать вообще, или null. */
 	public static String findHardConflict() {
 		final FabricLoader loader = FabricLoader.getInstance();
-		if (Signum.config.disableWithIris && loader.isModLoaded("iris")) {
+		if (Signum.config.disableWithIris && IRIS) {
 			return "Iris is installed and disableWithIris=true";
 		}
 		if (loader.isModLoaded("immediatelyfast") && immediatelyFastBuffersSigns(loader.getConfigDir())) {
@@ -54,37 +52,57 @@ public final class Compat {
 		return false;
 	}
 
-	/** true, если в Iris сейчас включён шейдерпак. Опрашивается не чаще двух раз в секунду. */
+	/** true, если в Iris сейчас включён шейдерпак. Опрашивается не чаще четырёх раз в секунду. */
 	public static boolean shaderPackActive(final long now) {
-		if (!Signum.config.disableWithShaderPack) {
+		if (!IRIS) {
 			return false;
 		}
-		if (now - nextIrisPoll < 0) {
-			return shaderPackActive;
-		}
-		nextIrisPoll = now + IRIS_POLL_NS;
-		if (!irisResolved) {
-			irisResolved = true;
-			if (FabricLoader.getInstance().isModLoaded("iris")) {
-				try {
-					final Class<?> api = Class.forName("net.irisshaders.iris.api.v0.IrisApi");
-					irisApi = api.getMethod("getInstance").invoke(null);
-					isShaderPackInUse = api.getMethod("isShaderPackInUse");
-				} catch (ReflectiveOperationException | LinkageError e) {
-					Signum.LOGGER.warn("Iris is installed but its API could not be reached; assuming a shader pack is always active", e);
-					shaderPackActive = true;
-					return true;
-				}
-			}
-		}
-		if (irisApi == null) {
-			return shaderPackActive;
-		}
-		try {
-			shaderPackActive = (Boolean) isShaderPackInUse.invoke(irisApi);
-		} catch (ReflectiveOperationException | RuntimeException e) {
-			shaderPackActive = true;
+		if (now - nextIrisPoll >= 0) {
+			nextIrisPoll = now + IRIS_POLL_NS;
+			shaderPackActive = IrisBridge.READY ? IrisBridge.isShaderPackInUse() : true;
 		}
 		return shaderPackActive;
+	}
+
+	/**
+	 * true — этот вызов надо отдать ванили: шейдеры включены, а работать с ними нельзя
+	 * (запрещено конфигом или Iris несовместимой версии), либо идёт теневой проход Iris
+	 * (сам Iris в нём текст табличек вообще не рисует).
+	 */
+	public static boolean useVanilla(final long now) {
+		if (!shaderPackActive(now)) {
+			return false;
+		}
+		if (Signum.config.disableWithShaderPack || !IrisBridge.READY) {
+			return true;
+		}
+		return IrisBridge.isRenderingShadowPass();
+	}
+
+	/**
+	 * Вся работа Signum с GPU-ресурсами атласа (создание и очистка страниц, проекция, запекание)
+	 * идёт внутри этой пары вызовов: при шейдерах Iris на это время отключает свои подмены.
+	 */
+	public static void enterVanillaRendering() {
+		if (IRIS && IrisBridge.READY) {
+			IrisBridge.enterVanilla();
+		}
+	}
+
+	public static void exitVanillaRendering() {
+		if (IRIS && IrisBridge.READY) {
+			IrisBridge.exitVanilla();
+		}
+	}
+
+	/** Для строки F3. */
+	public static String shaderStatus() {
+		if (!IRIS) {
+			return "";
+		}
+		if (!shaderPackActive) {
+			return ", shaders off";
+		}
+		return Signum.config.disableWithShaderPack || !IrisBridge.READY ? ", shaders on (vanilla fallback)" : ", shaders on";
 	}
 }
