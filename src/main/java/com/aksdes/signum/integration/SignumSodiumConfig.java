@@ -17,10 +17,10 @@ import net.minecraft.resources.Identifier;
  */
 public final class SignumSodiumConfig implements ConfigEntryPoint {
 
-	/** Иконка 16×16 пиксель-арт (увеличена до 64×64): бинарная прозрачность, читается в мелком размере. */
+	/** Иконка мода для списка в видеонастройках Sodium. */
 	private static final Identifier ICON = Identifier.fromNamespaceAndPath(Signum.MOD_ID, "textures/gui/sodium_icon.png");
-	/** Тёплый «деревянный» цвет под иконку; без него Sodium выбирает цвет мода случайно. */
-	private static final int THEME_RGB = 0xD9A15A;
+	/** Зелёный, как на иконке мода (#1BFF00); без своей темы Sodium выбирает цвет мода случайно. */
+	private static final int THEME_RGB = 0x1BFF00;
 
 	@Override
 	public void registerConfigLate(final ConfigBuilder builder) {
